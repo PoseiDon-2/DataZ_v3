@@ -174,6 +174,24 @@ app.get('/logout', (req, res) => {
     res.redirect('/login'); // เปลี่ยนเส้นทางไปยังหน้า login
 });
 
+
+router.get('/setAdmin', async (req, res) => {
+    try {
+        const user = await User.findOneAndUpdate(
+            { username: 'Suriya' },
+            { role: 'admin' },
+            { new: true }
+        );
+        if (user) {
+            res.send('User Suriya has been set to admin.');
+        } else {
+            res.send('User not found.');
+        }
+    } catch (error) {
+        res.status(500).send('Error updating user role.');
+    }
+});
+
 // Route - 404
 app.use((req, res) => {
     res.status(404).render('404', { mytitle: '404' });

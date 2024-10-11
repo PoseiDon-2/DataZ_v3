@@ -21,7 +21,7 @@
 
             <h2>โปรไฟล์ของผู้ใช้</h2>
             <% if (user) { %>
-            <p><strong>ชื่อ :</strong> <%= user.username %></p>
+            <p><strong>ชื่อ :</strong> <%= user.username %> <%= user.role %></p>
             <!-- เพิ่มการแสดงผล BMI และสถานะของ BMI -->
             <p>
                 BMI : 
