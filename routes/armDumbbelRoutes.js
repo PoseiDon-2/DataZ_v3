@@ -2,6 +2,7 @@
 const express = require('express');
 const router = express.Router();
 const ArmDumbbel = require('../models/ArmDumbbel');
+const User = require('../models/User');
 
 // Route สำหรับบันทึกข้อมูล Arm Dumbbel
 router.post('/add', async (req, res) => {
@@ -17,11 +18,18 @@ router.post('/add', async (req, res) => {
   }
 });
 
-// Route สำหรับแสดงข้อมูล Arm Dumbbel
+// routes/armDumbbelRoutes.js
 router.get('/', async (req, res) => {
   try {
     const armDumbbelExercises = await ArmDumbbel.find();
-    res.render('Arm_Dumbbel', { armDumbbelExercises });
+    const username = req.session.username; // ดึง username จาก session
+    let user = null;
+
+    if (username) {
+      user = await User.findOne({ username: username }); // ดึงข้อมูลผู้ใช้จากฐานข้อมูล
+    }
+
+    res.render('Arm_Dumbbel', { armDumbbelExercises, user }); // ส่งตัวแปร user ไปด้วย
   } catch (error) {
     console.error('Error loading Arm Dumbbel exercises:', error);
     res.status(500).send('Error loading Arm Dumbbel exercises');
@@ -30,7 +38,8 @@ router.get('/', async (req, res) => {
 
 
 // ใน armDumbbelRoutes.js
-router.get('/arm-dumbbel', (req, res) => {
+// armDumbbelRoutes.js
+router.get('/arm-dumbbel', async (req, res, next) => {
     const armDumbbelExercises = [
         // รายการการออกกำลังกายที่นี่
     ];
@@ -42,8 +51,18 @@ router.get('/arm-dumbbel', (req, res) => {
         hard: armDumbbelExercises.filter(exercise => exercise.difficulty === 'hard')
     };
 
-    res.render('Arm_Dumbbel', { exercises });
+    const username = req.session.username;
+    let user = null;
+
+    if (username) {
+        user = await User.findOne({ username: username }); // ดึงข้อมูลผู้ใช้จากฐานข้อมูล
+    }
+
+    res.render('Arm_Dumbbel', { exercises, user });
 });
+
+
+
 
 // Route สำหรับการลบการออกกำลังกาย
 router.delete('/delete/:id', async (req, res) => {
