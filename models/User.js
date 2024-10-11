@@ -18,11 +18,6 @@ const userSchema = new mongoose.Schema({
     createdAt: {
         type: Date,
         default: Date.now
-    },
-    role: {
-        type: String,
-        enum: ['user', 'admin'],
-        default: 'user' // ค่าเริ่มต้นเป็นผู้ใช้ทั่วไป
     }
 });
 
