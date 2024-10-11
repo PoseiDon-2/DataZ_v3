@@ -5,7 +5,10 @@ const blogRoutes = require('./routes/blogRoutes');
 const firstRoutes = require('./routes/firstRoutes');
 const profileRoutes = require('./routes/profileRoutes');
 const healthRoutes = require('./routes/healthRoutes');
+
 const exerciseRoutes = require('./routes/exerciseRoutes');
+const armDumbbelRoutes = require('./routes/armDumbbelRoutes');
+
 const methodOverride = require('method-override'); //สำหรับแก้ไขข้อมูล
 const bcrypt = require('bcryptjs');
 const User = require('./models/User');
@@ -95,6 +98,7 @@ app.use('/profile', checkAuth, profileRoutes);
 app.use('/blogs', checkAuth, blogRoutes);
 app.use('/health', checkAuth, healthRoutes);
 app.use('/exercise', checkAuth, exerciseRoutes);
+app.use('/arm-dumbbel', checkAuth, armDumbbelRoutes);
 
 // Route - เกี่ยวกับ
 app.get('/about', (req, res) => {
@@ -196,3 +200,6 @@ router.get('/setAdmin', async (req, res) => {
 app.use((req, res) => {
     res.status(404).render('404', { mytitle: '404' });
 });
+
+
+

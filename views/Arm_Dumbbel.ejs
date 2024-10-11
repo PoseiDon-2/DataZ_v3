@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Arm Dumbbell</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+
+    <style>
+        .container {
+            width: 90%;
+            max-width: 1000px;
+            margin: 40px auto;
+            z-index: 2;
+        }
+
+        .box {
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 8px;
+            padding: 50px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+            margin-bottom: 20px;
+            margin-top: 40px;
+            margin: 80px;
+        }
+
+        .filter-box {
+            position: fixed;
+            top: 180px;
+            right: 30px;
+            padding: 20px;
+            background-color: #ffffff;
+            border-radius: 8px;
+            width: 200px;
+        }
+
+        .filter-box label {
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        .d-flex {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .category-text {
+            font-weight: bold;
+            color: #333;
+            margin-left: 10px;
+        }
+
+        .card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        .icon-container i {
+            color: #ff4500;
+        }
+
+        .icon-container i.dimmed {
+            opacity: 0.4;
+        }
+
+        /* Remove underline from link and make it clickable across the entire card */
+        .card-link {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        /* Style for the fixed button */
+        .add-button {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            font-size: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Style for the form */
+        .add-exercise-form {
+            display: none;
+            position: fixed;
+            bottom: 100px;
+            right: 30px;
+            background-color: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            width: 300px;
+        }
+        .edit-form {
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+  <!-- Navigation and Breadcrumb -->
+  <%- include('./partials/head.ejs') %>
+  <%- include('./partials/nav.ejs') %>
+  <%- include('partials/breadcrumb') %>
+
+            <div class="container my-5">
+                <!-- Filter Box -->
+                <div class="filter-box">
+                    <h4>Filter Workouts</h4>
+                    <label><input type="checkbox" class="filter-checkbox" value="หน้าแขน" /> หน้าแขน</label>
+                    <label><input type="checkbox" class="filter-checkbox" value="หลังแขน" /> หลังแขน</label>
+                    <label><input type="checkbox" class="filter-checkbox" value="โฟอาร์ม" /> โฟอาร์ม</label>
+                    <label><input type="checkbox" class="filter-checkbox" value="ไหล่" /> ไหล่</label>
+                    <label><input type="checkbox" class="filter-checkbox" value="หน้าอก" /> หน้าอก</label>
+                </div>
+        
+<!-- Easy Section -->
+<div class="box category-easy">
+    <h2>Easy</h2>
+    <div class="row row-cols-1 row-cols-md-2 g-4">
+        <% armDumbbelExercises.forEach(exercise => { %>
+            <% if (exercise.difficulty === 'easy') { %>
+                <div class="col workout-card" data-categories="<%= exercise.categories.join(',') %>">
+                    <div class="card">
+                        <img alt="<%= exercise.title %>" style="background-color: transparent;" src="<%= exercise.imgUrl %>" class="card-img-top">
+                        <div class="card-body">
+                            <h5 class="card-title">
+                                <a href="<%= exercise.videoUrl %>" target="_blank" class="card-link">
+                                    <%= exercise.title %>
+                                </a>
+                            </h5>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <p class="card-text mb-0">
+                                    <%= exercise.description %> <%= exercise.duration %>
+                                </p>
+                                <span class="category-text">หมวดหมู่: <%= exercise.categories.join(', ') %></span>
+                            </div>
+                            <div class="icon-container mt-2">
+                                <span>ระดับ</span>
+                                <% for (let i = 0; i < exercise.fireLevel; i++) { %>
+                                    <i class="fas fa-fire"></i>
+                                <% } %>
+                                <% for (let i = exercise.fireLevel; i < 3; i++) { %>
+                                    <i class="fas fa-fire dimmed"></i>
+                                <% } %>
+                            </div>
+
+                            <!-- ปุ่มแก้ไข -->
+                            <button class="btn btn-warning edit-btn" data-id="<%= exercise._id %>">Edit</button>
+
+                            <!-- ปุ่มลบ -->
+                            <button class="btn btn-danger delete-btn" data-id="<%= exercise._id %>">Delete</button>
+
+                            <!-- ฟอร์มสำหรับแก้ไขข้อมูล -->
+                            <div id="editForm-<%= exercise._id %>" class="edit-form">
+                                <form action="/arm-dumbbel/edit/<%= exercise._id %>" method="POST">
+                                    <div class="mb-2">
+                                        <label for="title">Title</label>
+                                        <input type="text" name="title" value="<%= exercise.title %>" class="form-control">
+                                    </div>
+                                    <div class="mb-2">
+                                        <label for="description">Description</label>
+                                        <textarea name="description" class="form-control"><%= exercise.description %></textarea>
+                                    </div>
+                                    <div class="mb-2">
+                                        <label for="duration">Duration</label>
+                                        <input type="text" name="duration" value="<%= exercise.duration %>" class="form-control">
+                                    </div>
+                                    <div class="mb-2">
+                                        <label for="categories">Categories</label>
+                                        <input type="text" name="categories" value="<%= exercise.categories.join(', ') %>" class="form-control">
+                                    </div>
+                                    <div class="mb-2">
+                                        <label for="imgUrl">Image URL</label>
+                                        <input type="text" name="imgUrl" value="<%= exercise.imgUrl %>" class="form-control">
+                                    </div>
+                                    <div class="mb-2">
+                                        <label for="videoUrl">Video URL</label>
+                                        <input type="text" name="videoUrl" value="<%= exercise.videoUrl %>" class="form-control">
+                                    </div>
+                                    <button type="submit" class="btn btn-success">Save</button>
+                                </form>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            <% } %>
+        <% }); %>
+    </div>
+</div>
+
+        
+                <!-- Medium Section -->
+<div class="box category-medium mt-4">
+    <h2>Medium</h2>
+    <div class="row row-cols-1 row-cols-md-2 g-4">
+        <% armDumbbelExercises.forEach(exercise => { %>
+            <% if (exercise.difficulty === 'medium') { %>
+                <div class="col workout-card" data-categories="<%= exercise.categories.join(',') %>">
+                    <div class="card">
+                        <img alt="<%= exercise.title %>" style="background-color: transparent;" src="<%= exercise.imgUrl %>" class="card-img-top">
+                        <div class="card-body">
+                            <h5 class="card-title">
+                                <a href="<%= exercise.videoUrl %>" target="_blank" class="card-link">
+                                    <%= exercise.title %>
+                                </a>
+                            </h5>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <p class="card-text mb-0">
+                                    <%= exercise.description %> <%= exercise.duration %>
+                                </p>
+                                <span class="category-text">หมวดหมู่: <%= exercise.categories.join(', ') %></span>
+                            </div>
+                            <div class="icon-container mt-2">
+                                <span>ระดับ</span>
+                                <% for (let i = 0; i < exercise.fireLevel; i++) { %>
+                                    <i class="fas fa-fire"></i>
+                                <% } %>
+                                <% for (let i = exercise.fireLevel; i < 3; i++) { %>
+                                    <i class="fas fa-fire dimmed"></i>
+                                <% } %>
+                            </div>
+
+                            <!-- ปุ่มแก้ไข -->
+                            <button class="btn btn-warning edit-btn" data-id="<%= exercise._id %>">Edit</button>
+
+                            <!-- ปุ่มลบ -->
+                            <button class="btn btn-danger delete-btn" data-id="<%= exercise._id %>">Delete</button>
+
+                            <!-- ฟอร์มสำหรับแก้ไขข้อมูล -->
+                            <div id="editForm-<%= exercise._id %>" class="edit-form">
+                                <form action="/arm-dumbbel/edit/<%= exercise._id %>" method="POST">
+                                    <div class="mb-2">
+                                        <label for="title">Title</label>
+                                        <input type="text" name="title" value="<%= exercise.title %>" class="form-control">
+                                    </div>
+                                    <div class="mb-2">
+                                        <label for="description">Description</label>
+                                        <textarea name="description" class="form-control"><%= exercise.description %></textarea>
+                                    </div>
+                                    <div class="mb-2">
+                                        <label for="duration">Duration</label>
+                                        <input type="text" name="duration" value="<%= exercise.duration %>" class="form-control">
+                                    </div>
+                                    <div class="mb-2">
+                                        <label for="categories">Categories</label>
+                                        <input type="text" name="categories" value="<%= exercise.categories.join(', ') %>" class="form-control">
+                                    </div>
+                                    <div class="mb-2">
+                                        <label for="imgUrl">Image URL</label>
+                                        <input type="text" name="imgUrl" value="<%= exercise.imgUrl %>" class="form-control">
+                                    </div>
+                                    <div class="mb-2">
+                                        <label for="videoUrl">Video URL</label>
+                                        <input type="text" name="videoUrl" value="<%= exercise.videoUrl %>" class="form-control">
+                                    </div>
+                                    <button type="submit" class="btn btn-success">Save</button>
+                                </form>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            <% } %>
+        <% }); %>
+    </div>
+</div>
+
+        
+<!-- Hard Section -->
+<div class="box category-hard mt-4">
+    <h2>Hard</h2>
+    <div class="row row-cols-1 row-cols-md-2 g-4">
+        <% armDumbbelExercises.forEach(exercise => { %>
+            <% if (exercise.difficulty === 'hard') { %>
+                <div class="col workout-card" data-categories="<%= exercise.categories.join(',') %>">
+                    <div class="card">
+                        <img alt="<%= exercise.title %>" style="background-color: transparent;" src="<%= exercise.imgUrl %>" class="card-img-top">
+                        <div class="card-body">
+                            <h5 class="card-title">
+                                <a href="<%= exercise.videoUrl %>" target="_blank" class="card-link">
+                                    <%= exercise.title %>
+                                </a>
+                            </h5>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <p class="card-text mb-0">
+                                    <%= exercise.description %> <%= exercise.duration %>
+                                </p>
+                                <span class="category-text">หมวดหมู่: <%= exercise.categories.join(', ') %></span>
+                            </div>
+                            <div class="icon-container mt-2">
+                                <span>ระดับ</span>
+                                <% for (let i = 0; i < exercise.fireLevel; i++) { %>
+                                    <i class="fas fa-fire"></i>
+                                <% } %>
+                                <% for (let i = exercise.fireLevel; i < 3; i++) { %>
+                                    <i class="fas fa-fire dimmed"></i>
+                                <% } %>
+                            </div>
+
+                            <!-- ปุ่มแก้ไข -->
+                            <button class="btn btn-warning edit-btn" data-id="<%= exercise._id %>">Edit</button>
+
+                            <!-- ปุ่มลบ -->
+                            <button class="btn btn-danger delete-btn" data-id="<%= exercise._id %>">Delete</button>
+
+                            <!-- ฟอร์มสำหรับแก้ไขข้อมูล -->
+                            <div id="editForm-<%= exercise._id %>" class="edit-form">
+                                <form action="/arm-dumbbel/edit/<%= exercise._id %>" method="POST">
+                                    <div class="mb-2">
+                                        <label for="title">Title</label>
+                                        <input type="text" name="title" value="<%= exercise.title %>" class="form-control">
+                                    </div>
+                                    <div class="mb-2">
+                                        <label for="description">Description</label>
+                                        <textarea name="description" class="form-control"><%= exercise.description %></textarea>
+                                    </div>
+                                    <div class="mb-2">
+                                        <label for="duration">Duration</label>
+                                        <input type="text" name="duration" value="<%= exercise.duration %>" class="form-control">
+                                    </div>
+                                    <div class="mb-2">
+                                        <label for="categories">Categories</label>
+                                        <input type="text" name="categories" value="<%= exercise.categories.join(', ') %>" class="form-control">
+                                    </div>
+                                    <div class="mb-2">
+                                        <label for="imgUrl">Image URL</label>
+                                        <input type="text" name="imgUrl" value="<%= exercise.imgUrl %>" class="form-control">
+                                    </div>
+                                    <div class="mb-2">
+                                        <label for="videoUrl">Video URL</label>
+                                        <input type="text" name="videoUrl" value="<%= exercise.videoUrl %>" class="form-control">
+                                    </div>
+                                    <button type="submit" class="btn btn-success">Save</button>
+                                </form>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            <% } %>
+        <% }); %>
+    </div>
+</div>
+
+
+            </div>
+<!-- Fixed button -->
+<button class="add-button" id="addButton"><i class="fas fa-plus"></i></button>
+
+<!-- Add Exercise Form -->
+<div class="add-exercise-form" id="exerciseForm">
+    <form action="/arm-dumbbel/add" method="POST">
+        <input type="text" name="title" placeholder="Title" required class="form-control mb-2">
+        <input type="text" name="videoUrl" placeholder="Video URL" required class="form-control mb-2">
+        <input type="text" name="imgUrl" placeholder="Image URL" required class="form-control mb-2">
+        <input type="text" name="description" placeholder="Description" class="form-control mb-2">
+        <input type="text" name="duration" placeholder="Duration" required class="form-control mb-2">
+        <input type="text" name="categories" placeholder="Categories (comma separated)" class="form-control mb-2">
+        <select name="difficulty" class="form-control mb-2">
+            <option value="easy">Easy</option>
+            <option value="medium">Medium</option>
+            <option value="hard">Hard</option>
+        </select>
+        <input type="number" name="fireLevel" min="1" max="3" placeholder="Fire Level" class="form-control mb-2">
+        <button type="submit" class="btn btn-primary">Add Exercise</button>
+    </form>
+</div>
+
+                <script>
+                    // Toggle the display of the exercise form
+        const addButton = document.getElementById('addButton');
+        const exerciseForm = document.getElementById('exerciseForm');
+        addButton.addEventListener('click', () => {
+            if (exerciseForm.style.display === "none" || exerciseForm.style.display === "") {
+                exerciseForm.style.display = "block";
+            } else {
+                exerciseForm.style.display = "none";
+            }
+        });
+
+                    // JavaScript for filtering content by category
+                    const checkboxes =
+                        document.querySelectorAll(".filter-checkbox");
+                    const workoutCards =
+                        document.querySelectorAll(".workout-card");
+
+                    checkboxes.forEach(checkbox => {
+                        checkbox.addEventListener("change", () => {
+                            const selectedCategories = Array.from(checkboxes)
+                                .filter(cb => cb.checked)
+                                .map(cb => cb.value);
+
+                            workoutCards.forEach(card => {
+                                const categories = card.dataset.categories.split(",");
+                                const hasCategory = categories.some(category =>
+                                    selectedCategories.includes(category));
+
+                                card.style.display = hasCategory ? "block" : "none";
+                            });
+                        });
+                    });
+
+                    document.addEventListener('DOMContentLoaded', function() {
+        const editButtons = document.querySelectorAll('.edit-btn');
+        const deleteButtons = document.querySelectorAll('.delete-btn');
+
+        // ฟังก์ชันสำหรับแสดงฟอร์มแก้ไข
+        editButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const exerciseId = this.getAttribute('data-id');
+                const editForm = document.getElementById(`editForm-${exerciseId}`);
+                editForm.style.display = (editForm.style.display === 'none' || editForm.style.display === '') ? 'block' : 'none';
+            });
+        });
+
+        // ฟังก์ชันสำหรับการลบการออกกำลังกาย
+        deleteButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const exerciseId = this.getAttribute('data-id');
+
+                if (confirm('Are you sure you want to delete this exercise?')) {
+                    fetch(`/arm-dumbbel/delete/${exerciseId}`, {
+                        method: 'DELETE'
+                    })
+                    .then(response => {
+                        if (response.ok) {
+                            location.reload(); // รีโหลดหน้าเมื่อสำเร็จ
+                        } else {
+                            alert('Error deleting exercise');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                    });
+                }
+            });
+        });
+    });
+
+                </script>
+</body>
+
+</html>
